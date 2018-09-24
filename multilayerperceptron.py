@@ -12,6 +12,8 @@ class MultiLayerPerceptron:
     self.neurons_by_hidden_layer = args.neurons
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
 
+    self.learning_constant = args.learning
+
     self.data = data
 
     self.X = tf.placeholder(tf.float32, [None, self.number_input])
@@ -55,19 +57,59 @@ class MultiLayerPerceptron:
       tf.random_normal([self.number_output]),
       name="output_biases")
 
-    
+  
+  def prepare_model(self):
+
+    y = 0
+    for index, number_neurons in enumerate(self.neurons_by_hidden_layer):
+      if index == 0:
+        input_ = self.X
+      else:
+        input_ = y
+      
+      label   = 'hidden'+str(index)
+      weights = self.weights[label]
+      bias    = self.biases[label]
+
+      y = self.activation_function(tf.add(tf.matmul(input_, weights), bias))
+
+    return self.output_function(y)
 
   def run(self):
+
+    self.build()
+
+    neural_network = self.prepare_model()
+
+    """ the loss function is a MSE function
+    and it evaluates the model (neural_network in this case)
+    """
+    loss_function = tf.reduce_mean(tf.square(self.Y - neural_network))
+
+    """ alternatively you can use cross-entropy loss function, which is defined by
+      tf.nn.softmax_cross_entropy_with_logits(logits=neural_network,labels=self.Y)
+    """
+
+    # defines the optimiser
+    optimiser = tf.train.GradientDescentOptimizer(self.learning_constant)
+
+    # training operation
+    training_operation = optimiser.minimize(loss_function)
 
     init = tf.global_variables_initializer()
 
     with tf.Session() as session:
       session.run(init)
 
+      for epoch in range(self.epochs):
+        print epoch
+      
       session.close()
   
+  """ Uses the hyperbolic tangent as activation function """
   def activation_function(self, x):
-    return tf.tanh(x, name=None)
+    return tf.tanh(x)
   
+  """ Uses a linear function as output function """
   def output_function(self, y):
-    return tf.add(tf.matmul(y, self.weights), self.biases)
+    return tf.add(tf.matmul(y, self.weights['output']), self.biases['output'])

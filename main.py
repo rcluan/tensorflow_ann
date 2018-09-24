@@ -18,6 +18,8 @@ parser.add_argument(
   nargs="+", help="Number of Neurons for each hidden layer", 
   type=int, required=True
 )
+parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
+
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
 parser.add_argument("-file", "--filename", help="Location of the file containing the data", type=str)
 parser.add_argument("-sheet", "--sheetname", help="Name of the sheet on the data file", type=str)
@@ -45,7 +47,7 @@ def main(args):
         raise ValueError("The number of neurons cannot be zero or negative")
 
     filename = args.filename
-    sheet_name = args.sheet_name
+    sheet_name = args.sheetname
 
     data = pd.read_excel(filename, sheet_name)
 
