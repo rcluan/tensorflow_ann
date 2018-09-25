@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
 from multilayerperceptron import MultiLayerPerceptron
+from data import DataProcessor
 
 parser = argparse.ArgumentParser()
 
@@ -49,10 +50,10 @@ def main(args):
     filename = args.filename
     sheet_name = args.sheetname
 
-    data = pd.read_excel(filename, sheet_name)
+    data_processor = DataProcessor(pd.read_excel(filename, sheet_name))
 
-    ann = MultiLayerPerceptron(args, data)
-    ann.run()
+    ann = MultiLayerPerceptron(args, data_processor)
+    #ann.run()
 
   except ValueError as e:
     print 'Error: ' + e.message

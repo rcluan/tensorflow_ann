@@ -5,7 +5,7 @@ DEFAULT_EPOCH = 20
 
 class MultiLayerPerceptron:
 
-  def __init__(self, args, data):
+  def __init__(self, args, data_processor):
     self.number_input = args.input
     self.number_hidden_layers = args.hidden
     self.number_output = args.output
@@ -14,7 +14,7 @@ class MultiLayerPerceptron:
 
     self.learning_constant = args.learning
 
-    self.data = data
+    self.data_processor = data_processor
 
     self.X = tf.placeholder(tf.float32, [None, self.number_input])
     self.Y = tf.placeholder(tf.float32, [None, self.number_output])
