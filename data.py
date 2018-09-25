@@ -26,12 +26,14 @@ class DataProcessor:
     
     for key, row in self.raw_data.iterrows():
       row_content = []
+      label_content = []
       for label in processed_data['input_labels']:
         row_content.append(row[label])
         if label == 'v_anemo2':
-          processed_data['all_labels'].append(row[label])
+          label_content.append(row[label])
       
       processed_data['all_rows'].append(row_content)
+      processed_data['all_labels'].append(label_content)
 
     total_rows = len(processed_data['all_rows'])
 
