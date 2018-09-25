@@ -1,5 +1,6 @@
+import numpy as np
 
-TRAINING_PERCENTAGE = 0.8
+TRAINING_PERCENTAGE = 0.7392
 
 class DataProcessor:
 
@@ -11,8 +12,11 @@ class DataProcessor:
     processed_data = {
       'input_labels': [],
       'all_rows': [],
-      'training_rows': [],
-      'testing_rows': []
+      'all_labels': [],
+      'x_train_rows': [],
+      'y_train_labels': [],
+      'x_validate_rows': [],
+      'y_validate_labels': []
     }
     
     for key, value in enumerate(self.raw_data):
@@ -24,6 +28,8 @@ class DataProcessor:
       row_content = []
       for label in processed_data['input_labels']:
         row_content.append(row[label])
+        if label == 'v_anemo2':
+          processed_data['all_labels'].append(row[label])
       
       processed_data['all_rows'].append(row_content)
 
@@ -31,12 +37,10 @@ class DataProcessor:
 
     training_length = int(total_rows * TRAINING_PERCENTAGE)
 
-    processed_data['training_rows'] = processed_data['all_rows'][:training_length]
-    processed_data['testing_rows'] = processed_data['all_rows'][training_length:]
+    processed_data['x_train_rows'] = np.array(processed_data['all_rows'][:training_length])
+    processed_data['y_train_labels'] = np.array(processed_data['all_labels'][:training_length])
+    
+    processed_data['x_validate_rows'] = np.array(processed_data['all_rows'][training_length:])
+    processed_data['y_validate_labels'] = np.array(processed_data['all_labels'][training_length:])
 
     self.processed_data = processed_data
-
-  def next_batch(self, batch_size):
-    batch = self.processed_data[self.current_pointer:batch_size]
-    self.current_pointer = self.current_pointer + batch_size
-    return batch

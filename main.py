@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
-from multilayerperceptron import MultiLayerPerceptron
+from mlp import MultiLayerPerceptron
+from keras_mlp import KerasMLP
 from data import DataProcessor
 
 parser = argparse.ArgumentParser()
@@ -12,7 +13,6 @@ parser = argparse.ArgumentParser()
 """
 
 parser.add_argument("-i", "--input", help="Number of inputs", type=int, required=True)
-parser.add_argument("-hl", "--hidden", help="Number of hidden layers", type=int, required=True)
 parser.add_argument("-o", "--output", help="Number of outputs", type=int, required=True)
 parser.add_argument(
   "-n", "--neurons", 
@@ -20,8 +20,10 @@ parser.add_argument(
   type=int, required=True
 )
 parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
+parser.add_argument("-hl", "--hidden", help="Number of hidden layers", type=int)
 
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
+parser.add_argument("-b", "--batch", help="Batch size", type=int)
 parser.add_argument("-file", "--filename", help="Location of the file containing the data", type=str)
 parser.add_argument("-sheet", "--sheetname", help="Name of the sheet on the data file", type=str)
 parser.add_argument("-ext", "--extension", help="Data file extension (xlsx, csv, txt, xls)", type=str)
@@ -52,7 +54,9 @@ def main(args):
 
     data_processor = DataProcessor(pd.read_excel(filename, sheet_name))
 
-    ann = MultiLayerPerceptron(args, data_processor)
+    ann = KerasMLP(args, data_processor.processed_data)
+    ann.run()
+    #ann = MultiLayerPerceptron(args, data_processor)
     #ann.run()
 
   except ValueError as e:
