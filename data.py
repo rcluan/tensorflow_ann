@@ -45,4 +45,7 @@ class DataProcessor:
     processed_data['x_validate_rows'] = np.array(processed_data['all_rows'][training_length:])
     processed_data['y_validate_labels'] = np.array(processed_data['all_labels'][training_length:])
 
+    processed_data['x_train_rows'][351][6] = 25. # forcibly removes nan value (temporary workaround)
+      
+    assert not np.any(np.isnan(processed_data['x_train_rows']))
     self.processed_data = processed_data
