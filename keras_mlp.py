@@ -14,7 +14,7 @@ class KerasMLP:
     self.data = data
 
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
-    self.batch  = args.input
+    self.batch  = args.batch if args.batch else args.input
 
     self.model = keras.Sequential()
     
@@ -63,7 +63,7 @@ class KerasMLP:
       validation_data=(testing_data, testing_labels)
     )
 
-    self.model.predict(self.data['x_train_rows'], batch_size=self.batch)
+    print self.model.predict(self.data['x_train_rows'], batch_size=self.batch)
     
 
 

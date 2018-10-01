@@ -20,7 +20,6 @@ parser.add_argument(
   type=int, required=True
 )
 parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
-parser.add_argument("-hl", "--hidden", help="Number of hidden layers", type=int)
 
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
 parser.add_argument("-b", "--batch", help="Batch size", type=int)
@@ -37,12 +36,6 @@ def main(args):
     # forces a non-zero and positive number of outputs
     if args.output <= 0:
       raise ValueError("The number of outputs cannot be zero or negative")
-    # forces a non-zero and positive number of hidden layers
-    if args.hidden <= 0:
-      raise ValueError("The number of hidden layers cannot be zero or negative")
-    # checks whether the length list passed as argument of the flag -n matches with the informed number of hidden layers
-    if len(args.neurons) != args.hidden:
-      raise ValueError("The number of hidden layers and the neuron's list length do not match")
 
     # forces a non-zero and positive number of neuros
     for n in args.neurons:
