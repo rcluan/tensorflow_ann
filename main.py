@@ -1,6 +1,5 @@
 import argparse
 import pandas as pd
-from mlp import MultiLayerPerceptron
 from keras_mlp import KerasMLP
 from data import DataProcessor
 
@@ -51,21 +50,20 @@ def main(args):
     mld = KerasMLP(args=args, values=reframed.values)
 
   except ValueError as e:
-    print 'Error: ' + e.message
-
+    print ('Error: ' + e.message)
 
 def run(mld):
   try:
-      mld.model.load_weights(mld.checkpoint)
+    mld.model.load_weights(mld.checkpoint)
       
-      mld.evaluate()
-      mld.predict()
-    except Exception as error:
-        print("Error trying to load checkpoint.")
-        print(error)
-        mld.train()
-        mld.evaluate()
-        mld.predict()
+    mld.evaluate()
+    mld.predict()
+  except Exception as error:
+    print("Error trying to load checkpoint.")
+    print(error)
+    mld.train()
+    mld.evaluate()
+    mld.predict()
 
 
 if __name__ == "__main__":

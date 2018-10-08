@@ -88,8 +88,8 @@ class KerasMLP:
     
     history = self.model.fit(
       self.train_X, self.train_y, epochs=self.epochs, batch_size=self.batch,
-      steps_per_epoch=75
-      validation_split=1
+      steps_per_epoch=75,
+      validation_split=1,
       callbacks=callbacks
     )
 
@@ -110,7 +110,7 @@ class KerasMLP:
     print("predict")
     y_output = self.model.predict(self.test_X)
 
-    print y_output
+    print (y_output)
     
 
 
