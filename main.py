@@ -48,18 +48,18 @@ def main(args):
     reframed = processor.series_to_supervised(1, 1)
     reframed.drop(reframed.columns[[9,10,11,12,14,15,16,17]], axis=1, inplace=True)
 
-    mld = KerasMLP(args=args, values=reframed.values)
+    mld = KerasMLP(processor=processor,args=args, values=reframed.values)
 
     try:
       mld.model.load_weights(mld.checkpoint)
         
-      mld.evaluate()
+      #mld.evaluate()
       mld.predict()
     except Exception as error:
       print("Error trying to load checkpoint.")
       print(error)
-      mld.train()
-      mld.evaluate()
+      #mld.train()
+      #mld.evaluate()
       mld.predict()
 
 

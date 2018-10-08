@@ -14,11 +14,12 @@ N_TRAIN = 550
 
 class KerasMLP:
 
-  def __init__(self, args = None, values = []):
+  def __init__(self, processor, args = None, values = []):
 
     train = values[:N_TRAIN]
     test = values[N_TRAIN:TOTAL]
 
+    self.processor = processor
     self.checkpoint = args.checkpoint if args.checkpoint else "checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
@@ -92,10 +93,10 @@ class KerasMLP:
       callbacks=callbacks
     )
 
-    pyplot.plot(history.history['loss'], label='train')
+    #pyplot.plot(history.history['loss'], label='train')
     #pyplot.plot(history.history['val_loss'], label='test')
-    pyplot.legend()
-    pyplot.show()
+    #pyplot.legend()
+    #pyplot.show()
 
   def evaluate(self):
     print("eval")
@@ -109,8 +110,12 @@ class KerasMLP:
     print("predict")
     y_output = self.model.predict(self.test_X)
 
+    y_output_rescaled = self.processor.rescale(y_output.reshape(y_output.shape[0], 1))
+    y_rescaled = self.processor.rescale(self.test_y)
+
     for index, y in enumerate(y_output):
-      print (y + " - " + self.test_y[index])
+      print (str(y) + " " + str(self.test_y[index]))
+    
     
 
 

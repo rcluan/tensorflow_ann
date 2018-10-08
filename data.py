@@ -14,16 +14,16 @@ class DataProcessor:
 
   def __init__(self, dataset):
     self.dataset = dataset
+    self.encoder = LabelEncoder()
+    self.scaler = MinMaxScaler()
 
   def scale(self):
-    encoder = LabelEncoder()
-    scaler = MinMaxScaler()
 
     values = self.dataset.values
-    values[:,4] = encoder.fit_transform(values[:,4])
+    values[:,4] = self.encoder.fit_transform(values[:,4])
     values = values.astype('float32')
 
-    self.scaled_dataset = scaler.fit_transform(values)
+    self.scaled_dataset = self.scaler.fit_transform(values)
     
   # from https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
   # convert series to supervised learning
@@ -51,3 +51,11 @@ class DataProcessor:
     return agg
 
     return self.scaled_dataset
+
+  def rescale(self, y_output):
+
+    print (y_output)
+    
+    y_output_rescaled = self.scaler.inverse_transform(y_output)
+
+    return y_output_rescaled
