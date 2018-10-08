@@ -1,51 +1,53 @@
-import numpy as np
+from math import sqrt
+from numpy import concatenate
+from matplotlib import pyplot
+from pandas import read_csv
+from pandas import DataFrame
+from pandas import concat
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error
 
 TRAINING_PERCENTAGE = 0.7392
 
 class DataProcessor:
 
-  def __init__(self, data):
+  def __init__(self, dataset):
+    self.dataset = dataset
 
-    self.current_pointer = 0
-    self.raw_data = data
+  def scale(self):
+    encoder = LabelEncoder()
+    scaler = MinMaxScaler()
 
-    processed_data = {
-      'input_labels': [],
-      'all_rows': [],
-      'all_labels': [],
-      'x_train_rows': [],
-      'y_train_labels': [],
-      'x_validate_rows': [],
-      'y_validate_labels': []
-    }
+    values = self.dataset.values
+    values[:,4] = encoder.fit_transform(values[:,4])
+    values = values.astype('float32')
+
+    self.scaled_dataset = scaler.fit_transform(values)
     
-    for key, value in enumerate(self.raw_data):
-      if(key > 0):
-        processed_data['input_labels'].append(value)
+  # from https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
+  # convert series to supervised learning
+  def series_to_supervised(self, n_in=1, n_out=1, dropnan=True):
+    n_vars = 1 if type(self.scaled_dataset) is list else self.scaled_dataset.shape[1]
+    df = DataFrame(self.scaled_dataset)
+    cols, names = list(), list()
+    # input sequence (t-n, ... t-1)
+    for i in range(n_in, 0, -1):
+      cols.append(df.shift(i))
+      names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
+    # forecast sequence (t, t+1, ... t+n)
+    for i in range(0, n_out):
+      cols.append(df.shift(-i))
+      if i == 0:
+        names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
+      else:
+        names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
+    # put it all together
+    agg = concat(cols, axis=1)
+    agg.columns = names
+    # drop rows with NaN values
+    if dropnan:
+      agg.dropna(inplace=True)
+    return agg
 
-    
-    for key, row in self.raw_data.iterrows():
-      row_content = []
-      label_content = []
-      for label in processed_data['input_labels']:
-        row_content.append(row[label])
-        if label == 'v_anemo2':
-          label_content.append(row[label])
-      
-      processed_data['all_rows'].append(row_content)
-      processed_data['all_labels'].append(label_content)
-
-    total_rows = len(processed_data['all_rows'])
-
-    training_length = int(total_rows * TRAINING_PERCENTAGE)
-
-    processed_data['x_train_rows'] = np.array(processed_data['all_rows'][:training_length])
-    processed_data['y_train_labels'] = np.array(processed_data['all_labels'][:training_length])
-    
-    processed_data['x_validate_rows'] = np.array(processed_data['all_rows'][training_length:])
-    processed_data['y_validate_labels'] = np.array(processed_data['all_labels'][training_length:])
-
-    processed_data['x_train_rows'][351][6] = 25. # forcibly removes nan value (temporary workaround)
-      
-    assert not np.any(np.isnan(processed_data['x_train_rows']))
-    self.processed_data = processed_data
+    return self.scaled_dataset

@@ -23,9 +23,6 @@ parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, r
 
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
 parser.add_argument("-b", "--batch", help="Batch size", type=int)
-parser.add_argument("-file", "--filename", help="Location of the file containing the data", type=str)
-parser.add_argument("-sheet", "--sheetname", help="Name of the sheet on the data file", type=str)
-parser.add_argument("-ext", "--extension", help="Data file extension (xlsx, csv, txt, xls)", type=str)
 
 def main(args):
 
@@ -42,13 +39,10 @@ def main(args):
       if n <= 0:
         raise ValueError("The number of neurons cannot be zero or negative")
 
-    filename = args.filename
-    sheet_name = args.sheetname
+    #data_processor = DataProcessor(filename, sheet_name)
 
-    data_processor = DataProcessor(pd.read_excel(filename, sheet_name))
-
-    ann = KerasMLP(args, data_processor.processed_data)
-    ann.run()
+    #ann = KerasMLP(args, data_processor.processed_data)
+    #ann.run()
     #ann = MultiLayerPerceptron(args, data_processor)
     #ann.run()
 
