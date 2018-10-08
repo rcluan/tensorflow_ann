@@ -20,6 +20,7 @@ parser.add_argument(
 )
 parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
 
+parser.add_argument("-cp", "--checkpoint", help="Checkpoint file", type=int)
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
 parser.add_argument("-b", "--batch", help="Batch size", type=int)
 
@@ -49,21 +50,21 @@ def main(args):
 
     mld = KerasMLP(args=args, values=reframed.values)
 
+    try:
+      mld.model.load_weights(mld.checkpoint)
+        
+      mld.evaluate()
+      mld.predict()
+    except Exception as error:
+      print("Error trying to load checkpoint.")
+      print(error)
+      mld.train()
+      mld.evaluate()
+      mld.predict()
+
+
   except ValueError as e:
     print ('Error: ' + e.message)
-
-def run(mld):
-  try:
-    mld.model.load_weights(mld.checkpoint)
-      
-    mld.evaluate()
-    mld.predict()
-  except Exception as error:
-    print("Error trying to load checkpoint.")
-    print(error)
-    mld.train()
-    mld.evaluate()
-    mld.predict()
 
 
 if __name__ == "__main__":

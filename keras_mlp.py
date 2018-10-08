@@ -19,18 +19,17 @@ class KerasMLP:
     train = values[:N_TRAIN]
     test = values[N_TRAIN:TOTAL]
 
-    self.checkpoint = "checkpoint.keras"
+    self.checkpoint = args.checkpoint if args.checkpoint else "checkpoint.keras"
+    self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
+    self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
     self.train_X, self.train_y = train[:, :-1], train[:, -1]
     self.test_X, self.test_y = test[:, :-1], test[:, -1]
 
-    self.train_X = self.train_X.reshape((self.train_X.shape[0], 1, self.train_X.shape[1]))
-    self.test_X = self.test_X.reshape((self.test_X.shape[0], 1, self.test_X.shape[1]))
+    #self.train_X = self.train_X.reshape((self.train_X.shape[0], 1, self.train_X.shape[1]))
+    #self.test_X = self.test_X.reshape((self.test_X.shape[0], 1, self.test_X.shape[1]))
     
     print(self.train_X.shape, self.train_y.shape, self.test_X.shape, self.test_y.shape)
-
-    self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
-    self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
     self.model = keras.Sequential()
     
@@ -42,7 +41,7 @@ class KerasMLP:
     self.model.add(keras.layers.Dense(
       units=args.neurons[0],
       activation="tanh",
-      input_shape=(self.train_X.shape[1], self.train_X.shape[2])
+      input_shape=(args.input,)
     ))
 
     """
@@ -74,12 +73,12 @@ class KerasMLP:
     print("train")
     checkpoint = keras.callbacks.ModelCheckpoint(
       filepath=self.checkpoint,
-      monitor="val_loss",
+      monitor="loss",
       verbose=1,
       save_weights_only=True,
       save_best_only=True
     )
-    early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=5, verbose=1)
+    early_stopping = keras.callbacks.EarlyStopping(monitor="loss", patience=5, verbose=1)
     tensorboard = keras.callbacks.TensorBoard(log_dir="./logs/", histogram_freq=0, write_graph=False)
     
     callbacks = [
@@ -87,14 +86,14 @@ class KerasMLP:
     ]
     
     history = self.model.fit(
-      self.train_X, self.train_y, epochs=self.epochs, batch_size=self.batch,
-      steps_per_epoch=75,
+      self.train_X, self.train_y, epochs=self.epochs,
+      steps_per_epoch=36,
       validation_split=1,
       callbacks=callbacks
     )
 
     pyplot.plot(history.history['loss'], label='train')
-    pyplot.plot(history.history['val_loss'], label='test')
+    #pyplot.plot(history.history['val_loss'], label='test')
     pyplot.legend()
     pyplot.show()
 
@@ -110,7 +109,8 @@ class KerasMLP:
     print("predict")
     y_output = self.model.predict(self.test_X)
 
-    print (y_output)
+    for index, y in enumerate(y_output):
+      print (y + " - " + self.test_y[index])
     
 
 
