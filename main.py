@@ -39,15 +39,33 @@ def main(args):
       if n <= 0:
         raise ValueError("The number of neurons cannot be zero or negative")
 
-    #data_processor = DataProcessor(filename, sheet_name)
+    filename = "dataset.csv"
+    dataset = pd.read_csv(filename, header=0, index_col=0)
 
-    #ann = KerasMLP(args, data_processor.processed_data)
-    #ann.run()
-    #ann = MultiLayerPerceptron(args, data_processor)
-    #ann.run()
+    processor = DataProcessor(dataset)
+
+    processor.scale()
+    reframed = processor.series_to_supervised(1, 1)
+    reframed.drop(reframed.columns[[9,10,11,12,14,15,16,17]], axis=1, inplace=True)
+
+    mld = KerasMLP(args=args, values=reframed.values)
 
   except ValueError as e:
     print 'Error: ' + e.message
+
+
+def run(mld):
+  try:
+      mld.model.load_weights(mld.checkpoint)
+      
+      mld.evaluate()
+      mld.predict()
+    except Exception as error:
+        print("Error trying to load checkpoint.")
+        print(error)
+        mld.train()
+        mld.evaluate()
+        mld.predict()
 
 
 if __name__ == "__main__":
