@@ -20,7 +20,7 @@ class KerasDenseMLP:
     self.values = values
 
     self.hours = args.hours if args.hours else 1
-    self.checkpoint = args.checkpoint if args.checkpoint else "dense_" + len(args.neurons) + "_layers_checkpoint.keras"
+    self.checkpoint = args.checkpoint if args.checkpoint else "dense_" + str(len(args.neurons)) + "_layers_checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
