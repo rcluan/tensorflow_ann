@@ -16,20 +16,18 @@ class KerasDenseMLP:
 
   def __init__(self, processor, args = None, values = []):
 
-    train = values[0:N_TRAIN-1]
-    test = values[N_TRAIN:TOTAL]
-
     self.processor = processor
+    self.values = values
+
+    self.hours = args.hours if args.hours else 1
     self.checkpoint = args.checkpoint if args.checkpoint else "checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
-    self.train_X, self.train_y = train[:, :-1], train[:, -1]
-    self.test_X, self.test_y = test[:, :-1], test[:, -1]
-
     #self.train_X = self.train_X.reshape((self.train_X.shape[0], 1, self.train_X.shape[1]))
     #self.test_X = self.test_X.reshape((self.test_X.shape[0], 1, self.test_X.shape[1]))
 
+    self.build_data()
     self.model = keras.Sequential()
     
     """
@@ -67,6 +65,13 @@ class KerasDenseMLP:
       loss=keras.losses.MSE,
       metrics=[keras.metrics.MSE, keras.metrics.MAE]
     )
+
+  def build_data(self):
+    train = self.values[0:N_TRAIN-1]
+    test = self.values[N_TRAIN:TOTAL]
+
+    self.train_X, self.train_y = train[:, :-1], train[:, -1]
+    self.test_X, self.test_y = test[:, :-1], test[:, -1]
 
   def train(self):
     print("train")

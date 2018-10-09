@@ -20,6 +20,7 @@ parser.add_argument(
 )
 parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
 
+parser.add_argument("-hours", "--hours", help="Number of hours to consider for prediction", type=int)
 parser.add_argument("-cp", "--checkpoint", help="Checkpoint file", type=int)
 parser.add_argument("-e", "--epochs", help="Number of epochs", type=int)
 parser.add_argument("-b", "--batch", help="Batch size", type=int)
