@@ -53,13 +53,13 @@ def main(args):
     try:
       mld.model.load_weights(mld.checkpoint)
         
-      #mld.evaluate()
+      mld.evaluate()
       mld.predict()
     except Exception as error:
       print("Error trying to load checkpoint.")
       print(error)
-      #mld.train()
-      #mld.evaluate()
+      mld.train()
+      mld.evaluate()
       mld.predict()
 
 

@@ -91,18 +91,17 @@ class KerasMLP:
       callbacks=callbacks
     )
 
-    #pyplot.plot(history.history['loss'], label='train')
-    #pyplot.plot(history.history['val_loss'], label='test')
-    #pyplot.legend()
-    #pyplot.show()
+    pyplot.plot(history.history['loss'], label='train')
+    pyplot.plot(history.history['val_loss'], label='test')
+    pyplot.legend()
+    pyplot.show()
 
   def evaluate(self):
     print("eval")
-    result = self.model.evaluate(x=np.expand_dims(self.train_X, axis=0), y=np.expand_dims(self.train_y, axis=0))
+    result = self.model.evaluate(x=self.train_X, y=self.train_y)
 
-    if False:
-      for res, metric in zip(result, self.model.metrics_names):
-        print("{0}: {1:.3e}".format(metric, res))
+    for res, metric in zip(result, self.model.metrics_names):
+      print("{0}: {1:.3e}".format(metric, res))
 
   def predict(self):
     print("predict")
