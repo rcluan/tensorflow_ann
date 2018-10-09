@@ -12,7 +12,7 @@ DEFAULT_BATCH = 72
 TOTAL = 744
 N_TRAIN = 550
 
-class KerasMLP:
+class KerasDenseMLP:
 
   def __init__(self, processor, args = None, values = []):
 

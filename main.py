@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-from keras_mlp import KerasMLP
+from dense_mlp import KerasDenseMLP
 from data import DataProcessor
 
 parser = argparse.ArgumentParser()
@@ -48,7 +48,7 @@ def main(args):
     reframed = processor.series_to_supervised(1, 1)
     reframed.drop(reframed.columns[[9,10,11,12,14,15,16,17]], axis=1, inplace=True)
 
-    mld = KerasMLP(processor=processor,args=args, values=reframed.values)
+    mld = KerasDenseMLP(processor=processor,args=args, values=reframed.values)
 
     try:
       mld.model.load_weights(mld.checkpoint)
