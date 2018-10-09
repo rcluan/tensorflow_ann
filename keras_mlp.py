@@ -29,8 +29,6 @@ class KerasMLP:
 
     #self.train_X = self.train_X.reshape((self.train_X.shape[0], 1, self.train_X.shape[1]))
     #self.test_X = self.test_X.reshape((self.test_X.shape[0], 1, self.test_X.shape[1]))
-    
-    print(self.train_X.shape, self.train_y.shape, self.test_X.shape, self.test_y.shape)
 
     self.model = keras.Sequential()
     
@@ -111,12 +109,14 @@ class KerasMLP:
     y_output = self.model.predict(self.test_X)
 
     y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
-    #y_rescaled = self.processor.rescale(self.test_y)
 
-    #print (y_reshaped, y_real)
+    pyplot.plot(y_reshaped, label='predicted')
+    pyplot.plot(y_real, label='measured')
+    pyplot.legend()
+    pyplot.show()
 
-    #for index, y in enumerate(y_output):
-    #  print (str(y) + " " + str(self.test_y[index]))
+    #for index, y in enumerate(y_reshaped):
+    #  print (str(y) + " " + str(y_real[index]))
     
     
 

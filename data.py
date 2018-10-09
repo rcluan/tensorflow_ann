@@ -21,8 +21,7 @@ class DataProcessor:
   def scale(self):
 
     values = self.dataset.values
-    print(values[550:744][0])
-    values[:,4] = self.encoder.fit_transform(values[:,4])
+    #values[:,4] = self.encoder.fit_transform(values[:,4])
     values = values.astype('float32')
 
     self.scaled_dataset = self.scaler.fit_transform(values)
@@ -66,7 +65,6 @@ class DataProcessor:
     
     inv_y_output = self.scaler.inverse_transform(inv_y_output)
     inv_y_output = inv_y_output[:,4]
-    print (inv_y_output[0])
     
     # invert scaling for actual
     test_y = test_y.reshape((len(test_y), 1))
@@ -74,7 +72,5 @@ class DataProcessor:
     inv_y = concatenate((inv_y, test_X[:, 5:9]), axis=1)
     inv_y = self.scaler.inverse_transform(inv_y)
     inv_y = inv_y[:,4]
-
-    print (inv_y[0])
 
     return inv_y_output, inv_y
