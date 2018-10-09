@@ -24,9 +24,6 @@ class KerasDenseMLP:
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
-    #self.train_X = self.train_X.reshape((self.train_X.shape[0], 1, self.train_X.shape[1]))
-    #self.test_X = self.test_X.reshape((self.test_X.shape[0], 1, self.test_X.shape[1]))
-
     self.build_data()
     self.model = keras.Sequential()
     
@@ -67,7 +64,7 @@ class KerasDenseMLP:
     )
 
   def build_data(self):
-    train = self.values[0:N_TRAIN-1]
+    train = self.values[0:N_TRAIN]
     test = self.values[N_TRAIN:TOTAL]
 
     self.train_X, self.train_y = train[:, :-1], train[:, -1]
@@ -96,10 +93,10 @@ class KerasDenseMLP:
       callbacks=callbacks
     )
 
-    pyplot.plot(history.history['loss'], label='train')
-    pyplot.plot(history.history['val_loss'], label='test')
-    pyplot.legend()
-    pyplot.show()
+    #pyplot.plot(history.history['loss'], label='train')
+    #pyplot.plot(history.history['val_loss'], label='test')
+    #pyplot.legend()
+    #pyplot.show()
 
   def evaluate(self):
     print("eval")
@@ -110,10 +107,18 @@ class KerasDenseMLP:
 
   def predict(self):
     print("predict")
-    y_output = self.model.predict(self.test_X)
 
-    y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
+    y_reshaped, y_real = None, None
 
+    for hour in range(self.hours):
+
+      self.test_X, self.test_y = self.test_X[hour:], self.test_y[hour:]
+      y_output = self.model.predict(self.test_X)
+
+      self.test_X[:,4] = y_output.reshape(len(y_output))
+
+      y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
+    
     pyplot.plot(y_reshaped, label='predicted')
     pyplot.plot(y_real, label='measured')
     pyplot.legend()
@@ -121,6 +126,7 @@ class KerasDenseMLP:
 
     #for index, y in enumerate(y_reshaped):
     #  print (str(y) + " " + str(y_real[index]))
+
     
     
 

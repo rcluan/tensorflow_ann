@@ -40,6 +40,8 @@ def main(args):
       if n <= 0:
         raise ValueError("The number of neurons cannot be zero or negative")
 
+    hours = args.hours if args.hours else 1
+    
     filename = "dataset.csv"
     dataset = pd.read_csv(filename, header=0, index_col=0)
 
@@ -54,13 +56,13 @@ def main(args):
     try:
       mld.model.load_weights(mld.checkpoint)
         
-      mld.evaluate()
+      #mld.evaluate()
       mld.predict()
     except Exception as error:
       print("Error trying to load checkpoint.")
       print(error)
-      mld.train()
-      mld.evaluate()
+      #mld.train()
+      #mld.evaluate()
       mld.predict()
 
 
