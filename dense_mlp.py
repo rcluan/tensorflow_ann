@@ -122,13 +122,3 @@ class KerasDenseMLP:
     pyplot.plot(y_real, label='measured')
     pyplot.legend()
     pyplot.show()
-
-    #for index, y in enumerate(y_reshaped):
-    #  print (str(y) + " " + str(y_real[index]))
-
-    
-    
-
-
-
-

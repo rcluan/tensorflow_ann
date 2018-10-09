@@ -9,8 +9,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error
 
-TRAINING_PERCENTAGE = 0.7392
-
 class DataProcessor:
 
   def __init__(self, dataset):

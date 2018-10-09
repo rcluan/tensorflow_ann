@@ -20,7 +20,7 @@ class KerasLSTMMLP:
     self.values = values
 
     self.hours = args.hours if args.hours else 1
-    self.checkpoint = args.checkpoint if args.checkpoint else "lstm_" + args.neurons[0] + "_neurons_checkpoint.keras"
+    self.checkpoint = args.checkpoint if args.checkpoint else "lstm_" + str(args.neurons[0]) + "_neurons_checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
