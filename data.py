@@ -51,7 +51,7 @@ class DataProcessor:
       agg.dropna(inplace=True)
     
     return agg
-
+    
   def rescale(self, y_output, test_X, test_y):
 
     # invert scaling for forecast

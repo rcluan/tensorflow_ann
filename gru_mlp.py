@@ -12,7 +12,7 @@ DEFAULT_BATCH = 72
 TOTAL = 744
 N_TRAIN = 550
 
-class KerasDenseMLP:
+class KerasGRUMLP:
 
   def __init__(self, processor, args = None, values = []):
 
@@ -20,7 +20,7 @@ class KerasDenseMLP:
     self.values = values
 
     self.hours = args.hours if args.hours else 1
-    self.checkpoint = args.checkpoint if args.checkpoint else "dense_checkpoint.keras"
+    self.checkpoint = args.checkpoint if args.checkpoint else "gru_checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
@@ -32,10 +32,11 @@ class KerasDenseMLP:
       and having the hyperbolic tangent as the activation function.
         Considering a neuron list with the format [4,5], its output shape ought to be (*, 4).
     """
-    self.model.add(keras.layers.Dense(
+    self.model.add(keras.layers.GRU(
       units=args.neurons[0],
       activation="tanh",
-      input_shape=(args.input,)
+      return_sequences=True,
+      input_shape=(None, args.input,)
     ))
 
     """
@@ -46,9 +47,9 @@ class KerasDenseMLP:
     """
     for key, neurons in enumerate(args.neurons):
       if key < len(args.neurons) - 1:
-        self.model.add(keras.layers.Dense(units=args.neurons[key+1], activation="tanh"))
+        self.model.add(keras.layers.GRU(units=args.neurons[key+1], activation="tanh", return_sequences=True))
       else:
-        self.model.add(keras.layers.Dense(units=args.output, activation="tanh"))
+        self.model.add(keras.layers.GRU(units=args.output, activation="tanh"))
 
     """
         Adds output input layer containing the number of attributes specified along with the -o flag
@@ -70,6 +71,9 @@ class KerasDenseMLP:
     self.train_X, self.train_y = train[:, :-1], train[:, -1]
     self.test_X, self.test_y = test[:, :-1], test[:, -1]
 
+    self.train_X = self.train_X.reshape(self.train_X.shape[0], 1, self.train_X.shape[1])
+    self.test_X = self.test_X.reshape(self.test_X.shape[0], 1, self.test_X.shape[1])
+
   def train(self):
     print("train")
     checkpoint = keras.callbacks.ModelCheckpoint(
@@ -81,9 +85,16 @@ class KerasDenseMLP:
     )
     early_stopping = keras.callbacks.EarlyStopping(monitor="loss", patience=5, verbose=1)
     tensorboard = keras.callbacks.TensorBoard(log_dir="./logs/", histogram_freq=0, write_graph=False)
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(
+        monitor='loss',
+        factor=0.1,
+        min_lr=1e-4,
+        patience=0,
+        verbose=1
+    )
     
     callbacks = [
-      checkpoint, early_stopping, tensorboard
+      checkpoint, early_stopping, tensorboard, reduce_lr
     ]
     
     history = self.model.fit(
@@ -114,9 +125,9 @@ class KerasDenseMLP:
       self.test_X, self.test_y = self.test_X[hour:], self.test_y[hour:]
       y_output = self.model.predict(self.test_X)
 
-      self.test_X[:,4] = y_output.reshape(len(y_output))
+      self.test_X[:,:,4] = y_output
 
-      y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
+      y_reshaped, y_real = self.processor.rescale(y_output, self.test_X.reshape((self.test_X.shape[0],self.test_X.shape[2])), self.test_y)
     
     pyplot.plot(y_reshaped, label='predicted')
     pyplot.plot(y_real, label='measured')

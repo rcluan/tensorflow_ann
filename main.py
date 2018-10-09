@@ -1,6 +1,8 @@
 import argparse
 import pandas as pd
 from dense_mlp import KerasDenseMLP
+from gru_mlp import KerasGRUMLP
+from lstm_mlp import KerasLSTMMLP
 from data import DataProcessor
 
 parser = argparse.ArgumentParser()
@@ -51,18 +53,32 @@ def main(args):
     reframed = processor.series_to_supervised(1, 1)
     reframed.drop(reframed.columns[[9,10,11,12,14,15,16,17]], axis=1, inplace=True)
 
-    mld = KerasDenseMLP(processor=processor,args=args, values=reframed.values)
+    print("Select layer type")
+    print("1 - Dense")
+    print("2 - GRU")
+    print("3 - LSTM")
+
+    type = input()
+
+    if(type == "1"):
+      mld = KerasDenseMLP(processor=processor,args=args, values=reframed.values)
+    elif(type == "2"):
+      mld = KerasGRUMLP(processor=processor,args=args, values=reframed.values)
+    elif(type == "3"):
+      mld = KerasLSTMMLP(processor=processor,args=args, values=reframed.values)
+    else:
+      raise ValueError("Invalid layer")
 
     try:
       mld.model.load_weights(mld.checkpoint)
         
-      #mld.evaluate()
+      mld.evaluate()
       mld.predict()
     except Exception as error:
       print("Error trying to load checkpoint.")
       print(error)
-      #mld.train()
-      #mld.evaluate()
+      mld.train()
+      mld.evaluate()
       mld.predict()
 
 
