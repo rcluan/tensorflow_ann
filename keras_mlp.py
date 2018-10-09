@@ -16,7 +16,7 @@ class KerasMLP:
 
   def __init__(self, processor, args = None, values = []):
 
-    train = values[:N_TRAIN]
+    train = values[0:N_TRAIN-1]
     test = values[N_TRAIN:TOTAL]
 
     self.processor = processor
@@ -110,11 +110,13 @@ class KerasMLP:
     print("predict")
     y_output = self.model.predict(self.test_X)
 
-    y_output_rescaled = self.processor.rescale(y_output.reshape(y_output.shape[0], 1))
-    y_rescaled = self.processor.rescale(self.test_y)
+    y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
+    #y_rescaled = self.processor.rescale(self.test_y)
 
-    for index, y in enumerate(y_output):
-      print (str(y) + " " + str(self.test_y[index]))
+    #print (y_reshaped, y_real)
+
+    #for index, y in enumerate(y_output):
+    #  print (str(y) + " " + str(self.test_y[index]))
     
     
 

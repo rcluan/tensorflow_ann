@@ -20,6 +20,7 @@ class DataProcessor:
   def scale(self):
 
     values = self.dataset.values
+    print(values[550:744][2])
     values[:,4] = self.encoder.fit_transform(values[:,4])
     values = values.astype('float32')
 
@@ -48,14 +49,22 @@ class DataProcessor:
     # drop rows with NaN values
     if dropnan:
       agg.dropna(inplace=True)
+    
     return agg
 
-    return self.scaled_dataset
+  def rescale(self, y_output, test_X, test_y):
 
-  def rescale(self, y_output):
-
-    print (y_output)
+    # invert scaling for forecast
+    #inv_y_output = concatenate((y_output, test_X[:, 1:]), axis=1)
+    #print (test_X[:, 1:][0], inv_y_output[0])
+    inv_y_output = self.scaler.inverse_transform(test_X)
+    #inv_y_output = inv_y_output[:,4]
+    print (inv_y_output[0])
     
-    y_output_rescaled = self.scaler.inverse_transform(y_output)
+    # invert scaling for actual
+    test_y = test_y.reshape((len(test_y), 1))
+    inv_y = concatenate((test_y, test_X[:, 1:]), axis=1)
+    inv_y = self.scaler.inverse_transform(inv_y)
+    inv_y = inv_y[:,4]
 
-    return y_output_rescaled
+    return inv_y_output, inv_y
