@@ -56,19 +56,25 @@ class DataProcessor:
   def rescale(self, y_output, test_X, test_y):
 
     # invert scaling for forecast
+    # gets the first four variables since the output is the 5th one
     temp_test_X = test_X[:, 0:4]
-    #print (test_X.shape)
+    
+    # concatenates with the prediction output
     inv_y_output = concatenate((temp_test_X, y_output), axis=1)
+    # concatenates with the remaining content of the original test_X array
     inv_y_output = concatenate((inv_y_output, test_X[:, 5:9]), axis=1)
-    #print (test_X[:, 1:][0], inv_y_output[0])
+    
     inv_y_output = self.scaler.inverse_transform(inv_y_output)
-    #inv_y_output = inv_y_output[:,4]
+    inv_y_output = inv_y_output[:,4]
     print (inv_y_output[0])
     
     # invert scaling for actual
     test_y = test_y.reshape((len(test_y), 1))
-    inv_y = concatenate((test_y, test_X[:, 1:]), axis=1)
+    inv_y = concatenate((temp_test_X, test_y), axis=1)
+    inv_y = concatenate((inv_y, test_X[:, 5:9]), axis=1)
     inv_y = self.scaler.inverse_transform(inv_y)
     inv_y = inv_y[:,4]
+
+    print (inv_y[0])
 
     return inv_y_output, inv_y
