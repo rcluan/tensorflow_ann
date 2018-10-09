@@ -1,5 +1,6 @@
 from math import sqrt
 from numpy import concatenate
+from numpy import delete
 from matplotlib import pyplot
 from pandas import read_csv
 from pandas import DataFrame
@@ -20,7 +21,7 @@ class DataProcessor:
   def scale(self):
 
     values = self.dataset.values
-    print(values[550:744][2])
+    print(values[550:744][0])
     values[:,4] = self.encoder.fit_transform(values[:,4])
     values = values.astype('float32')
 
@@ -55,9 +56,12 @@ class DataProcessor:
   def rescale(self, y_output, test_X, test_y):
 
     # invert scaling for forecast
-    #inv_y_output = concatenate((y_output, test_X[:, 1:]), axis=1)
+    temp_test_X = test_X[:, 0:4]
+    #print (test_X.shape)
+    inv_y_output = concatenate((temp_test_X, y_output), axis=1)
+    inv_y_output = concatenate((inv_y_output, test_X[:, 5:9]), axis=1)
     #print (test_X[:, 1:][0], inv_y_output[0])
-    inv_y_output = self.scaler.inverse_transform(test_X)
+    inv_y_output = self.scaler.inverse_transform(inv_y_output)
     #inv_y_output = inv_y_output[:,4]
     print (inv_y_output[0])
     
