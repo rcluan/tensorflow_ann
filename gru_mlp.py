@@ -45,11 +45,11 @@ class KerasGRUMLP:
       having 4 neurons and the latter 5 neurons.
         Their output shapes ought to be respectively (*, 5) and (*, args.output).
     """
-    for key, neurons in enumerate(args.neurons):
-      if key < len(args.neurons) - 1:
-        self.model.add(keras.layers.GRU(units=args.neurons[key+1], activation="tanh", return_sequences=True))
-      else:
-        self.model.add(keras.layers.GRU(units=args.output, activation="tanh"))
+    #for key, neurons in enumerate(args.neurons):
+    #  if key < len(args.neurons) - 1:
+    #    self.model.add(keras.layers.GRU(units=args.neurons[key+1], activation="tanh", return_sequences=True))
+    #  else:
+    #    self.model.add(keras.layers.GRU(units=args.output, activation="tanh"))
 
     """
         Adds output input layer containing the number of attributes specified along with the -o flag
@@ -96,6 +96,8 @@ class KerasGRUMLP:
     callbacks = [
       checkpoint, early_stopping, tensorboard, reduce_lr
     ]
+
+    print(self.train_X.shape, self.train_y.shape)
     
     history = self.model.fit(
       self.train_X, self.train_y, epochs=self.epochs,

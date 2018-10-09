@@ -17,8 +17,7 @@ parser.add_argument("-i", "--input", help="Number of inputs", type=int, required
 parser.add_argument("-o", "--output", help="Number of outputs", type=int, required=True)
 parser.add_argument(
   "-n", "--neurons", 
-  nargs="+", help="Number of Neurons for each hidden layer", 
-  type=int, required=True
+  nargs="+", help="Number of Neurons for each Dense hidden layer", type=int
 )
 parser.add_argument("-lc", "--learning", help="Learning Constant", type=float, required=True)
 
@@ -36,11 +35,6 @@ def main(args):
     # forces a non-zero and positive number of outputs
     if args.output <= 0:
       raise ValueError("The number of outputs cannot be zero or negative")
-
-    # forces a non-zero and positive number of neuros
-    for n in args.neurons:
-      if n <= 0:
-        raise ValueError("The number of neurons cannot be zero or negative")
 
     hours = args.hours if args.hours else 1
     
