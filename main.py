@@ -1,8 +1,8 @@
 import argparse
 import pandas as pd
 from dense_mlp import KerasDenseMLP
-from gru_mlp import KerasGRUMLP
-from lstm_mlp import KerasLSTMMLP
+from gru import KerasGRU
+from lstm import KerasLSTM
 from data import DataProcessor
 
 parser = argparse.ArgumentParser()
@@ -57,9 +57,9 @@ def main(args):
     if(type == "1"):
       mld = KerasDenseMLP(processor=processor,args=args, values=reframed.values)
     elif(type == "2"):
-      mld = KerasGRUMLP(processor=processor,args=args, values=reframed.values)
+      mld = KerasGRU(processor=processor,args=args, values=reframed.values)
     elif(type == "3"):
-      mld = KerasLSTMMLP(processor=processor,args=args, values=reframed.values)
+      mld = KerasLSTM(processor=processor,args=args, values=reframed.values)
     else:
       raise ValueError("Invalid layer")
 

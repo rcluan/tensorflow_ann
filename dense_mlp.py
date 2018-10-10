@@ -79,7 +79,7 @@ class KerasDenseMLP:
       save_weights_only=True,
       save_best_only=True
     )
-    early_stopping = keras.callbacks.EarlyStopping(monitor="loss", patience=5, verbose=1)
+    early_stopping = keras.callbacks.EarlyStopping(monitor="loss", patience=0, verbose=1)
     tensorboard = keras.callbacks.TensorBoard(log_dir="./logs/", histogram_freq=0, write_graph=False)
     
     callbacks = [

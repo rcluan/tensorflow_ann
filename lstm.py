@@ -12,7 +12,7 @@ DEFAULT_BATCH = 72
 TOTAL = 744
 N_TRAIN = 550
 
-class KerasGRUMLP:
+class KerasLSTM:
 
   def __init__(self, processor, args = None, values = []):
 
@@ -20,7 +20,7 @@ class KerasGRUMLP:
     self.values = values
 
     self.hours = args.hours if args.hours else 1
-    self.checkpoint = args.checkpoint if args.checkpoint else "gru_checkpoint.keras"
+    self.checkpoint = args.checkpoint if args.checkpoint else "lstm_" + str(args.neurons[0]) + "_neurons_checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
 
@@ -32,24 +32,11 @@ class KerasGRUMLP:
       and having the hyperbolic tangent as the activation function.
         Considering a neuron list with the format [4,5], its output shape ought to be (*, 4).
     """
-    self.model.add(keras.layers.GRU(
+    self.model.add(keras.layers.LSTM(
       units=args.neurons[0],
       activation="tanh",
-      return_sequences=True,
-      input_shape=(None, args.input,)
+      input_shape=(None, self.train_X.shape[2])
     ))
-
-    """
-        Adds hidden layers containing units according to the value supplied with the -n flag
-      e.g. -n 4 5 yields a list [4,5] therefore two hidden layers will be added. The former
-      having 4 neurons and the latter 5 neurons.
-        Their output shapes ought to be respectively (*, 5) and (*, args.output).
-    """
-    for key, neurons in enumerate(args.neurons):
-      if key < len(args.neurons) - 1:
-        self.model.add(keras.layers.GRU(units=args.neurons[key+1], activation="tanh", return_sequences=True))
-      else:
-        self.model.add(keras.layers.GRU(units=args.output, activation="tanh"))
 
     """
         Adds output input layer containing the number of attributes specified along with the -o flag
