@@ -14,7 +14,7 @@ class DataProcessor:
   def __init__(self, dataset):
     self.dataset = dataset
     self.encoder = LabelEncoder()
-    self.scaler = MinMaxScaler()
+    self.scaler = MinMaxScaler((-1,1))
 
   def scale(self):
 

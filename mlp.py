@@ -4,12 +4,15 @@ from tensorflow import keras
 import numpy as np
 from matplotlib import pyplot
 
+from math import sqrt
+from sklearn.metrics import mean_squared_error
+
 np.set_printoptions(suppress=True)
 
 DEFAULT_EPOCH = 50
 DEFAULT_BATCH = 72
 
-VALIDATION_SPLIT = 0.2
+VALIDATION_SPLIT = 0.3
 TESTING_SPLIT = 0.3
 
 TOTAL = 744
@@ -62,6 +65,7 @@ class KerasDenseMLP:
     """
     self.model.add(keras.layers.Dense(units=args.output))
     
+    print(self.model.summary())
     self.model.compile(
       optimizer=keras.optimizers.SGD(lr=args.learning),
       loss=keras.losses.MSE,
@@ -128,16 +132,19 @@ class KerasDenseMLP:
   def predict(self):
     print("predict")
 
-    y_reshaped, y_real = None, self.processor.rescale(self.prediction_y.reshape(len(self.prediction_y), 1), self.prediction_X)
+    y_reshaped, y_real = None, self.processor.rescale(self.prediction_X[:,4].reshape(len(self.prediction_X), 1), self.prediction_X)
 
     for hour in range(self.hours):
-      self.prediction_X = self.prediction_X[1:]
+      self.prediction_X = self.prediction_X[1:] if hour > 1 else self.prediction_X[0:]
       y_output = self.model.predict(self.prediction_X)
 
       self.prediction_X[:,4] = y_output.reshape(len(y_output))
 
       y_reshaped = self.processor.rescale(y_output, self.prediction_X)
     
+    index_ = self.hours-2 if self.hours > 1 else 0
+    rmse = sqrt(mean_squared_error(y_reshaped, y_real[index_:]))
+    print('RMSE: %.3f' % rmse)
 
     y = np.zeros(y_real.shape)
     np.put(y, np.indices(y.shape), np.nan)
