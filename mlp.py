@@ -9,8 +9,11 @@ np.set_printoptions(suppress=True)
 DEFAULT_EPOCH = 50
 DEFAULT_BATCH = 72
 
+VALIDATION_SPLIT = 0.2
+TESTING_SPLIT = 0.3
+
 TOTAL = 744
-N_TRAIN = 550
+N_INPUTS = 550
 
 class KerasDenseMLP:
 
@@ -23,6 +26,8 @@ class KerasDenseMLP:
     self.checkpoint = args.checkpoint if args.checkpoint else "dense_" + str(len(args.neurons)) + "_layers_checkpoint.keras"
     self.epochs = args.epochs if args.epochs else DEFAULT_EPOCH
     self.batch  = args.batch if args.batch else DEFAULT_BATCH
+
+    self.features = args.input
 
     self.build_data()
     self.model = keras.Sequential()
@@ -64,43 +69,58 @@ class KerasDenseMLP:
     )
 
   def build_data(self):
-    train = self.values[0:N_TRAIN]
-    test = self.values[N_TRAIN:TOTAL]
+    inputs = self.values[0:N_INPUTS]
+    prediction = self.values[N_INPUTS:TOTAL]
+    
+    np.random.shuffle(inputs)
+    N_TEST = int(N_INPUTS*TESTING_SPLIT)
 
-    self.train_X, self.train_y = train[:, :-1], train[:, -1]
-    self.test_X, self.test_y = test[:, :-1], test[:, -1]
+    self.train_X, self.train_y = inputs[:(N_INPUTS-N_TEST), :-1], inputs[:(N_INPUTS-N_TEST), -1]
+    self.test_X, self.test_y = inputs[(N_INPUTS-N_TEST):, :-1], inputs[(N_INPUTS-N_TEST):, -1]
+
+    self.prediction_X, self.prediction_y = prediction[:, :-1], prediction[:, -1]
+
+
 
   def train(self):
     print("train")
     checkpoint = keras.callbacks.ModelCheckpoint(
       filepath=self.checkpoint,
-      monitor="loss",
+      monitor="val_loss",
       verbose=1,
       save_weights_only=True,
       save_best_only=True
     )
-    early_stopping = keras.callbacks.EarlyStopping(monitor="loss", patience=0, verbose=1)
+    early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=5, verbose=1)
     tensorboard = keras.callbacks.TensorBoard(log_dir="./logs/", histogram_freq=0, write_graph=False)
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.1,
+        min_lr=1e-4,
+        patience=0,
+        verbose=1
+    )
     
     callbacks = [
-      checkpoint, early_stopping, tensorboard
+      checkpoint, early_stopping, tensorboard, reduce_lr
     ]
     
     history = self.model.fit(
       self.train_X, self.train_y, epochs=self.epochs,
-      steps_per_epoch=36,
-      validation_split=1,
+      steps_per_epoch=72,
+      validation_steps=72,
+      validation_split=VALIDATION_SPLIT,
       callbacks=callbacks
     )
 
-    #pyplot.plot(history.history['loss'], label='train')
-    #pyplot.plot(history.history['val_loss'], label='test')
-    #pyplot.legend()
-    #pyplot.show()
+    pyplot.plot(history.history['loss'], label='train')
+    pyplot.plot(history.history['val_loss'], label='validation')
+    pyplot.legend()
+    pyplot.show()
 
   def evaluate(self):
     print("eval")
-    result = self.model.evaluate(x=self.train_X, y=self.train_y)
+    result = self.model.evaluate(x=self.test_X, y=self.test_y)
 
     for res, metric in zip(result, self.model.metrics_names):
       print("{0}: {1:.3e}".format(metric, res))
@@ -108,15 +128,15 @@ class KerasDenseMLP:
   def predict(self):
     print("predict")
 
-    y_reshaped, y_real = None, self.processor.rescale(self.test_y.reshape(len(self.test_y), 1), self.test_X)
+    y_reshaped, y_real = None, self.processor.rescale(self.prediction_X[:,4].reshape(len(self.prediction_X), 1), self.prediction_X)
 
     for hour in range(self.hours):
-      self.test_X = self.test_X[1:]
-      y_output = self.model.predict(self.test_X)
+      self.prediction_X = self.prediction_X[1:]
+      y_output = self.model.predict(self.prediction_X)
 
-      self.test_X[:,4] = y_output.reshape(len(y_output))
+      self.prediction_X[:,4] = y_output.reshape(len(y_output))
 
-      y_reshaped = self.processor.rescale(y_output, self.test_X)
+      y_reshaped = self.processor.rescale(y_output, self.prediction_X)
     
 
     y = np.zeros(y_real.shape)
