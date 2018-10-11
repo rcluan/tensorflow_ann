@@ -50,25 +50,18 @@ class DataProcessor:
     
     return agg
     
-  def rescale(self, y_output, test_X, test_y):
+  def rescale(self, y, x):
 
     # invert scaling for forecast
     # gets the first four variables since the output is the 5th one
-    temp_test_X = test_X[:, 0:4]
+    temp_x = x[:, 0:4]
     
     # concatenates with the prediction output
-    inv_y_output = concatenate((temp_test_X, y_output), axis=1)
+    inv_y = concatenate((temp_x, y), axis=1)
     # concatenates with the remaining content of the original test_X array
-    inv_y_output = concatenate((inv_y_output, test_X[:, 5:9]), axis=1)
+    inv_y = concatenate((inv_y, x[:, 5:9]), axis=1)
     
-    inv_y_output = self.scaler.inverse_transform(inv_y_output)
-    inv_y_output = inv_y_output[:,4]
-    
-    # invert scaling for actual
-    test_y = test_y.reshape((len(test_y), 1))
-    inv_y = concatenate((temp_test_X, test_y), axis=1)
-    inv_y = concatenate((inv_y, test_X[:, 5:9]), axis=1)
     inv_y = self.scaler.inverse_transform(inv_y)
     inv_y = inv_y[:,4]
 
-    return inv_y_output, inv_y
+    return inv_y

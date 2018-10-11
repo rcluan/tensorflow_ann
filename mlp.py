@@ -108,17 +108,24 @@ class KerasDenseMLP:
   def predict(self):
     print("predict")
 
-    y_reshaped, y_real = None, None
+    y_reshaped, y_real = None, self.processor.rescale(self.test_y.reshape(len(self.test_y), 1), self.test_X)
 
     for hour in range(self.hours):
-      self.test_X, self.test_y = self.test_X[hour:], self.test_y[hour:]
+      self.test_X = self.test_X[1:]
       y_output = self.model.predict(self.test_X)
 
       self.test_X[:,4] = y_output.reshape(len(y_output))
 
-      y_reshaped, y_real = self.processor.rescale(y_output, self.test_X, self.test_y)
+      y_reshaped = self.processor.rescale(y_output, self.test_X)
     
-    pyplot.plot(y_reshaped, label='predicted')
+
+    y = np.zeros(y_real.shape)
+    np.put(y, np.indices(y.shape), np.nan)
+    starting_index = len(y) - len(y_reshaped)
+
+    np.put(y, np.indices(y.shape)[:,starting_index:],y_reshaped)
+
+    pyplot.plot(y, label='predicted')
     pyplot.plot(y_real, label='measured')
     pyplot.legend()
     pyplot.show()
