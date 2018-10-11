@@ -111,8 +111,8 @@ class KerasDenseMLP:
     
     history = self.model.fit(
       self.train_X, self.train_y, epochs=self.epochs,
-      steps_per_epoch=72,
-      validation_steps=72,
+      steps_per_epoch=200,
+      validation_steps=10,
       validation_split=VALIDATION_SPLIT,
       callbacks=callbacks
     )

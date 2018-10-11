@@ -53,7 +53,7 @@ def main(args):
     except Exception as error:
       print("Error trying to load checkpoint.")
       print(error)
-      #mld.train()
+      mld.train()
       mld.evaluate()
       mld.predict()
 
