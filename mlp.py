@@ -128,7 +128,7 @@ class KerasDenseMLP:
   def predict(self):
     print("predict")
 
-    y_reshaped, y_real = None, self.processor.rescale(self.prediction_X[:,4].reshape(len(self.prediction_X), 1), self.prediction_X)
+    y_reshaped, y_real = None, self.processor.rescale(self.prediction_y.reshape(len(self.prediction_y), 1), self.prediction_X)
 
     for hour in range(self.hours):
       self.prediction_X = self.prediction_X[1:]
