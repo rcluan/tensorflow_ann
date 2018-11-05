@@ -9,59 +9,53 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error
 
+TARGET_NAMES = ['v_anemo']
+
+NUM_TOTAL = 744
+NUM_TRAIN = 550
+
+VALIDATION_SPLIT = 0.2
+
 class DataProcessor:
 
   def __init__(self, dataset):
-    self.dataset = dataset
+
+    dataset.values.astype('float32')
+
+    self.raw_dataset = dataset
     self.encoder = LabelEncoder()
-    self.scaler = MinMaxScaler((-1,1))
-
-  def scale(self):
-
-    values = self.dataset.values
-    #values[:,4] = self.encoder.fit_transform(values[:,4])
-    values = values.astype('float32')
-
-    self.scaled_dataset = self.scaler.fit_transform(values)
     
-  # from https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
-  # convert series to supervised learning
-  def series_to_supervised(self, n_in=1, n_out=1, dropnan=True):
-    n_vars = 1 if type(self.scaled_dataset) is list else self.scaled_dataset.shape[1]
-    df = DataFrame(self.scaled_dataset)
-    cols, names = list(), list()
-    # input sequence (t-n, ... t-1)
-    for i in range(n_in, 0, -1):
-      cols.append(df.shift(i))
-      names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-    # forecast sequence (t, t+1, ... t+n)
-    for i in range(0, n_out):
-      cols.append(df.shift(-i))
-      if i == 0:
-        names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-      else:
-        names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-    # put it all together
-    agg = concat(cols, axis=1)
-    agg.columns = names
-    # drop rows with NaN values
-    if dropnan:
-      agg.dropna(inplace=True)
-    
-    return agg
-    
-  def rescale(self, y, x):
+    self.x_scaler = MinMaxScaler((-1,1))
+    self.y_scaler = MinMaxScaler((-1,1))
 
-    # invert scaling for forecast
-    # gets the first four variables since the output is the 5th one
-    temp_x = x[:, 0:4]
-    
-    # concatenates with the prediction output
-    inv_y = concatenate((temp_x, y), axis=1)
-    # concatenates with the remaining content of the original test_X array
-    inv_y = concatenate((inv_y, x[:, 5:9]), axis=1)
-    
-    inv_y = self.scaler.inverse_transform(inv_y)
-    inv_y = inv_y[:,4]
+    self.target_names = TARGET_NAMES
+    self.validation_split = VALIDATION_SPLIT
 
-    return inv_y
+  def shift(self, shift_steps):
+    self.dataset_targets = self.raw_dataset[TARGET_NAMES].shift(-shift_steps)
+
+  def to_numpy_arrays(self, shift_steps):
+    x_data = self.raw_dataset.values[0:-shift_steps]
+    y_data = self.dataset_targets.values[:-shift_steps]
+  
+    return x_data, y_data
+
+  def build_dataset(self, x_data, y_data):
+
+    self.n_inputs = x_data.shape[1]
+    self.n_outputs = y_data.shape[1]
+
+    self.x_train = x_data[:NUM_TRAIN]
+    self.y_train = y_data[:NUM_TRAIN]
+
+    self.x_test = x_data[NUM_TRAIN:NUM_TOTAL]
+    self.y_test = y_data[NUM_TRAIN:NUM_TOTAL]
+
+    self.x_train_scaled = self.x_scaler.fit_transform(self.x_train)
+    #self.y_train_scaled = self.y_scaler.fit_transform(self.y_train)
+    
+    self.x_test_scaled = self.x_scaler.transform(self.x_test)
+    #self.y_test_scaled = self.y_scaler.transform(self.y_test)
+
+  def rescale(self, data, x=True):
+    return self.x_scaler.inverse_transform(data[0]) if x else self.y_scaler.inverse_transform(data[0])
