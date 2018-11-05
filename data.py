@@ -1,13 +1,6 @@
-from math import sqrt
-from numpy import concatenate
-from numpy import delete
-from matplotlib import pyplot
-from pandas import read_csv
-from pandas import DataFrame
-from pandas import concat
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import mean_squared_error
 
 TARGET_NAMES = ['v_anemo']
 
@@ -58,4 +51,4 @@ class DataProcessor:
     #self.y_test_scaled = self.y_scaler.transform(self.y_test)
 
   def rescale(self, data, x=True):
-    return self.x_scaler.inverse_transform(data[0]) if x else self.y_scaler.inverse_transform(data[0])
+    return self.x_scaler.inverse_transform(data) if x else self.y_scaler.inverse_transform(data)

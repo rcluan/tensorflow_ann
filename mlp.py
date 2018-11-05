@@ -108,13 +108,14 @@ class KerasDenseMLP:
       x=self.processor.x_train_scaled,
       y=self.processor.y_train,
       epochs=self.epochs,
+      batch_size=self.batch,
       validation_split=self.processor.validation_split
     )
 
     plt.plot(history.history['loss'], label='train')
     plt.plot(history.history['val_loss'], label='validation')
     plt.legend()
-    plt.show()
+    plt.savefig("loss.png")
 
   def evaluate(self):
     result = self.model.evaluate(x=self.processor.x_test_scaled, y=self.processor.y_test)
@@ -135,7 +136,8 @@ class KerasDenseMLP:
         
       # Get the true output-signal from the data-set.
       signal_true = y[:, signal]
-        
+      
+      plt.clf()
       # Plot and compare the two signals.
       plt.plot(signal_true, label='Measured')
       plt.plot(signal_pred, label='Prediction')
@@ -143,7 +145,7 @@ class KerasDenseMLP:
       # Plot labels etc.
       plt.ylabel(self.processor.target_names[signal])
       plt.legend()
-      plt.show()
+      plt.savefig("prediction_"+self.processor.target_names[signal]+".png")
     
     """
     def predict(self):

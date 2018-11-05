@@ -8,3 +8,6 @@
 *.keras
 .ipynb_checkpoints
 .vscode
+/notebook/*.csv
+/notebook/*.xlsx
+/notebook/*.xls
